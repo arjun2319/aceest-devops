@@ -2,7 +2,10 @@ from flask import Flask, jsonify, request
 import sqlite3
 
 app = Flask(__name__)
-DB = "aceest.db"
+import os
+
+def get_db_path():
+    return os.environ.get("DB_PATH", "aceest.db")
 
 PROGRAMS = {
     "Fat Loss": {"calorie_factor": 22},
@@ -11,7 +14,7 @@ PROGRAMS = {
 }
 
 def init_db():
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(get_db_path())
     conn.execute("""
         CREATE TABLE IF NOT EXISTS clients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +38,7 @@ def programs():
 
 @app.route("/clients", methods=["GET"])
 def get_clients():
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM clients").fetchall()
     conn.close()
@@ -55,7 +58,7 @@ def add_client():
 
     calories = int(weight * PROGRAMS[program]["calorie_factor"])
 
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(get_db_path())
     try:
         conn.execute(
             "INSERT INTO clients (name,age,weight,program,calories) VALUES (?,?,?,?,?)",
