@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aceest-app
+  template:
+    metadata:
+      labels:
+        app: aceest-app
+    spec:
+      containers:
+        - name: aceest
+          image: aceest-app:v1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
